@@ -18,7 +18,7 @@ obj-$(CONFIG_INPUT_LSM6DS3) += lsm6ds3/
 ```
 4. Modify the dts as follows
 ```
-	&i2c2 {
+&i2c2 {
 	status = "okay";
 	
 	lsm6ds3@6b {
