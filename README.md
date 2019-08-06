@@ -27,6 +27,12 @@ obj-$(CONFIG_INPUT_LSM6DS3) += lsm6ds3/
 		st,irq_gpio = <&gpio1 GPIO_A3 GPIO_ACTIVE_LOW>;
 
 		st,drdy-int-pin = <1>;
+		
+		// 0: xyz 1:xzy 2:yxz 3:yzx 4:zxy 5:zyx
+		st,xyz = <2>;
+		st,x-reverse = <1>;
+		st,y-reverse = <1>;
+		st,z-reverse = <0>;
 	};
 };
 ```
@@ -38,7 +44,7 @@ Android HAL, please refer to the file modification in the hardware.
 * ayst.shen@foxmail.com
 
 ## License
-	Copyright 2018-2019 Shen Haibo
+	Copyright 2019 Shen Haibo.
 
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.

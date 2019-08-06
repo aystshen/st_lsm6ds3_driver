@@ -34,6 +34,15 @@ enum {
 	LSM6DS3_SENSORS_NUMB,
 };
 
+enum {
+    LSM6DS3_XYZ = 0,
+    LSM6DS3_XZY,
+    LSM6DS3_YXZ,
+    LSM6DS3_YZX,
+    LSM6DS3_ZXY,
+    LSM6DS3_ZYX,
+};
+
 #define DEF_ZERO			(0x00)
 
 #define LSM6DS3_ACC_OUT_X_L_ADDR	(0x28)
@@ -143,6 +152,10 @@ struct lsm6ds3_data {
 	int irq;
 	int64_t timestamp;
     int irq_gpio;
+    int xyz;
+    int x_reverse;
+    int y_reverse;
+    int z_reverse;
 
 	struct mutex lock;
 	struct work_struct input_work;

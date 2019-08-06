@@ -380,13 +380,57 @@ static void lsm6ds3_report_3axes_event(struct lsm6ds3_sensor_data *sdata,
 							s32 *xyz, int64_t timestamp)
 {
 	struct input_dev  *input = sdata->input_dev;
+	int new_xyz[3] = { 0 };
 
 	if (!sdata->enabled)
 		return;
 
-	input_event(input, INPUT_EVENT_TYPE, INPUT_EVENT_X, xyz[0]);
-	input_event(input, INPUT_EVENT_TYPE, INPUT_EVENT_Y, xyz[1]);
-	input_event(input, INPUT_EVENT_TYPE, INPUT_EVENT_Z, xyz[2]);
+	switch (sdata->cdata->xyz) {
+        case LSM6DS3_XYZ:
+            new_xyz[0] = xyz[0];
+            new_xyz[1] = xyz[1];
+            new_xyz[2] = xyz[2];
+            break;
+        case LSM6DS3_XZY:
+            new_xyz[0] = xyz[0];
+            new_xyz[1] = xyz[2];
+            new_xyz[2] = xyz[1];
+            break;
+        case LSM6DS3_YXZ:
+            new_xyz[0] = xyz[1];
+            new_xyz[1] = xyz[0];
+            new_xyz[2] = xyz[2];
+            break;
+        case LSM6DS3_YZX:
+            new_xyz[0] = xyz[1];
+            new_xyz[1] = xyz[2];
+            new_xyz[2] = xyz[0];
+            break;
+        case LSM6DS3_ZXY:
+            new_xyz[0] = xyz[2];
+            new_xyz[1] = xyz[0];
+            new_xyz[2] = xyz[1];
+            break;
+        case LSM6DS3_ZYX:
+            new_xyz[0] = xyz[2];
+            new_xyz[1] = xyz[1];
+            new_xyz[2] = xyz[0];
+            break;
+	}
+
+	if (sdata->cdata->x_reverse) {
+        new_xyz[0] = -new_xyz[0];
+	}
+	if (sdata->cdata->y_reverse) {
+        new_xyz[1] = -new_xyz[1];
+	}
+	if (sdata->cdata->z_reverse) {
+        new_xyz[2] = -new_xyz[2];
+	}
+
+	input_event(input, INPUT_EVENT_TYPE, INPUT_EVENT_X, new_xyz[0]);
+	input_event(input, INPUT_EVENT_TYPE, INPUT_EVENT_Y, new_xyz[1]);
+	input_event(input, INPUT_EVENT_TYPE, INPUT_EVENT_Z, new_xyz[2]);
 	input_event(input, INPUT_EVENT_TYPE, INPUT_EVENT_TIME_MSB,
 							timestamp >> 32);
 	input_event(input, INPUT_EVENT_TYPE, INPUT_EVENT_TIME_LSB,
@@ -1467,10 +1511,43 @@ static u32 lsm6ds3_parse_dt(struct lsm6ds3_data *cdata)
 	}
 
 	if (!of_property_read_u32(np, "st,drdy-int-pin", &val) &&
-							(val <= 2) && (val > 0))
+							(val <= 2) && (val > 0)) {
 		cdata->drdy_int_pin = (u8)val;
-	else
+	} else {
 		cdata->drdy_int_pin = 1;
+	}
+
+    // xyz
+    if (!of_property_read_u32(np, "st,xyz", &val)) {
+        cdata->xyz = val;
+    } else {
+        dev_warn(cdata->dev, "No valid zyz parameter, set to default");
+        cdata->xyz = 0;
+    }
+
+    // x-reverse
+    if (!of_property_read_u32(np, "st,x-reverse", &val)) {
+        cdata->x_reverse = val;
+    } else {
+        dev_warn(cdata->dev, "No valid x-reverse parameter, set to default");
+        cdata->x_reverse = 0;
+    }
+
+    // y-reverse
+    if (!of_property_read_u32(np, "st,y-reverse", &val)) {
+        cdata->y_reverse = val;
+    } else {
+        dev_warn(cdata->dev, "No valid y-reverse parameter, set to default");
+        cdata->y_reverse = 0;
+    }
+
+    // z-reverse
+    if (!of_property_read_u32(np, "st,z-reverse", &val)) {
+        cdata->z_reverse = val;
+    } else {
+        dev_warn(cdata->dev, "No valid z-reverse parameter, set to default");
+        cdata->z_reverse = 0;
+    }
 
 	return 0;
 }
