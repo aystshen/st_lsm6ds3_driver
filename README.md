@@ -44,7 +44,7 @@ Android HAL, please refer to the file modification in the hardware.
 * ayst.shen@foxmail.com
 
 ## License
-	Copyright 2019 Shen Haibo.
+	Copyright 2019 Bob Shen.
 
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
